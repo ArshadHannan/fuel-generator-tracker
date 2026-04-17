@@ -4,11 +4,19 @@ import '../colors.dart';
 class AppInputField extends StatelessWidget {
   final String label;
   final String? hint;
+  final String? suffixText;
+  final IconData? suffixIcon;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
 
   const AppInputField({
     super.key,
     required this.label,
     this.hint,
+    this.suffixText,
+    this.suffixIcon,
+    this.controller,
+    this.keyboardType,
   });
 
   @override
@@ -16,7 +24,6 @@ class AppInputField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         Text(
           label,
           style: const TextStyle(
@@ -28,7 +35,12 @@ class AppInputField extends StatelessWidget {
         const SizedBox(height: 6),
 
         TextField(
-          style: const TextStyle(color: AppColors.text),
+          controller: controller,
+          keyboardType: keyboardType,
+          style: const TextStyle(
+            color: AppColors.text,
+            fontSize: 15,
+          ),
           decoration: InputDecoration(
             hintText: hint ?? "Enter $label",
             hintStyle: const TextStyle(
@@ -43,6 +55,29 @@ class AppInputField extends StatelessWidget {
               horizontal: 16,
               vertical: 16,
             ),
+
+            // ✅ ALWAYS visible suffix (text OR icon)
+            suffixIcon: suffixIcon != null
+                ? Icon(
+              suffixIcon,
+              color: AppColors.textMuted,
+              size: 18,
+            )
+                : (suffixText != null
+                ? Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Center(
+                widthFactor: 1,
+                child: Text(
+                  suffixText!,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            )
+                : null),
 
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),

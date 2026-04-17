@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'nav_bar.dart';
 import 'pages/dashboard/dashboard_page.dart';
-import 'pages/generator_page.dart';
+import 'pages/generator/generator_page.dart';
 import 'pages/info_page.dart';
 import 'colors.dart';
 
