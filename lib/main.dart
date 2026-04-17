@@ -8,9 +8,9 @@ void main() {
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, // optional
-      statusBarIconBrightness: Brightness.light, // Android → white icons
-      statusBarBrightness: Brightness.dark, // iOS → white icons
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
     ),
   );
 

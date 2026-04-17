@@ -6,7 +6,7 @@ class InfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // optional (since you're using dark UI)
+      backgroundColor: Colors.black,
       body: SafeArea(
         child: Align(
           alignment: Alignment.topCenter,

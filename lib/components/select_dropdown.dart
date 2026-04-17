@@ -20,7 +20,7 @@ class AppDropdown extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Label
+
         Text(
           label,
           style: const TextStyle(
@@ -37,12 +37,12 @@ class AppDropdown extends StatelessWidget {
           dropdownColor: AppColors.secondaryFg,
 
           menuMaxHeight: 250,
-          // ✅ THIS IS THE PLACEHOLDER
+
           hint: Text(
             'Select $label',
             style: const TextStyle(
               color: AppColors.textMuted,
-              fontSize: 14, // ✅ match input field hint
+              fontSize: 14,
             ),
           ),
 

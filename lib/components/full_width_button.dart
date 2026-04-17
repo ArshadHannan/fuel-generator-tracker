@@ -14,15 +14,15 @@ class FullWidthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity, // ✅ full width
+      width: double.infinity,
+      height: 48,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary, // ✅ background
-          foregroundColor: Colors.black, // ✅ text color
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.black,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16), // ✅ radius
+            borderRadius: BorderRadius.circular(16),
           ),
           elevation: 0,
         ),
@@ -30,7 +30,7 @@ class FullWidthButton extends StatelessWidget {
           text,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 18
+            fontSize: 15,
           ),
         ),
       ),

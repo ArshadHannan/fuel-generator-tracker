@@ -16,7 +16,7 @@ class AppInputField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Label
+
         Text(
           label,
           style: const TextStyle(
@@ -27,7 +27,6 @@ class AppInputField extends StatelessWidget {
 
         const SizedBox(height: 6),
 
-        // Input
         TextField(
           style: const TextStyle(color: AppColors.text),
           decoration: InputDecoration(
