@@ -67,7 +67,6 @@ class _GeneratorPageState extends State<GeneratorPage> {
 
                 const SizedBox(height: 25),
 
-                // ✅ CHANGE 1: Replaced ConstrainedBox with Expanded + bottom padding
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 80),

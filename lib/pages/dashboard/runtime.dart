@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../components/app_confirm_dialog.dart';
+import '../../components/app_success_dialog.dart';
 import '../../components/input_field.dart';
 import '../../components/full_width_button.dart';
 import '../../components/select_dropdown.dart';
@@ -55,8 +57,18 @@ class _RuntimePageState extends State<RuntimePage> {
 
         FullWidthButton(
           text: "Save Runtime Details",
-          onPressed: () {},
-        ),
+          onPressed: () {
+            showAppConfirmDialog(
+              context: context,
+              title: "Are you sure?",
+              onConfirm: () {
+                // Save logic here
+
+                showSuccessDialog(context, "Saved successfully");
+              },
+            );
+          },
+        )
       ],
     );
   }

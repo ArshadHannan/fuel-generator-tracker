@@ -4,6 +4,8 @@ import '../../components/input_field.dart';
 import '../../components/select_dropdown.dart';
 import '../../components/date_picker_field.dart';
 import '../../components/full_width_button.dart';
+import '../../components/app_confirm_dialog.dart';
+import '../../components/app_success_dialog.dart';
 
 class AddGeneratorPage extends StatefulWidget {
   const AddGeneratorPage({super.key});
@@ -108,13 +110,21 @@ class _AddGeneratorPageState extends State<AddGeneratorPage> {
 
               const SizedBox(height: 50),
 
-              // 💾 Save Button
+              // Save Button
               FullWidthButton(
                 text: "Save Generator",
                 onPressed: () {
-                  Navigator.pop(context);
+                  showAppConfirmDialog(
+                    context: context,
+                    title: "Are you sure?",
+                    onConfirm: () {
+                      // Save logic here
+
+                      showSuccessDialog(context, "Saved successfully");
+                    },
+                  );
                 },
-              ),
+              )
 
 
             ],
