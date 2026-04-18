@@ -13,7 +13,7 @@ class InfoPage extends StatelessWidget {
           children: [
             const SizedBox(height: 25),
 
-            // Header (centered)
+            // 🔹 Header (fixed)
             const Stack(
               alignment: Alignment.center,
               children: [
@@ -34,25 +34,36 @@ class InfoPage extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // Info icon
-            Center(
-              child: Image.asset(
-                'assets/info.png',
-                width: 60,
-                height: 60,
-                color: AppColors.primary,
+            // 🔹 Scrollable content only
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // Info icon
+                    Center(
+                      child: Image.asset(
+                        'assets/info.png',
+                        width: 60,
+                        height: 60,
+                        color: AppColors.primary,
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    // Info list
+                    _buildInfoGroup(),
+
+                    const SizedBox(height: 20),
+
+                    // Description
+                    _buildDescriptionCard(),
+
+                    const SizedBox(height: 25), // 👈 prevents cutoff
+                  ],
+                ),
               ),
             ),
-
-            const SizedBox(height: 25),
-
-            // Info list
-            _buildInfoGroup(),
-
-            const SizedBox(height: 20),
-
-            // Description
-            _buildDescriptionCard(),
           ],
         ),
       ),

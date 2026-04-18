@@ -15,8 +15,11 @@ class AppFloatingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ CHANGE 2: Added bottomInset to account for Android navigation bar
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+
     return Positioned(
-      bottom: bottom,
+      bottom: bottom + bottomInset,
       right: right,
       child: Material(
         color: AppColors.primary,
