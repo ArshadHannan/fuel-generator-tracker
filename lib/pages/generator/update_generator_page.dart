@@ -68,7 +68,7 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
             children: [
               const SizedBox(height: 25),
 
-              // 🔹 Header
+              // Header
               Stack(
                 alignment: Alignment.center,
                 children: [

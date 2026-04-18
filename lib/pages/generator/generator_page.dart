@@ -72,7 +72,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
                     items: generators,
                     controller: _scrollController,
 
-                    // 🔥 navigation handled here
+                    // navigation handled here
                     onItemTap: (gen) {
                       Navigator.push(
                         context,

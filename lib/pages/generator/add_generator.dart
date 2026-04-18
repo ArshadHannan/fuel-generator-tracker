@@ -29,7 +29,7 @@ class _AddGeneratorPageState extends State<AddGeneratorPage> {
             children: [
               const SizedBox(height: 25),
 
-              // 🔙 Header
+              // Header
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -56,7 +56,7 @@ class _AddGeneratorPageState extends State<AddGeneratorPage> {
 
               const SizedBox(height: 25),
 
-              // 📅 Created Date
+              // Created Date
               AppDatePickerField(
                 label: "Created Date",
                 value: selectedDate,
@@ -69,12 +69,12 @@ class _AddGeneratorPageState extends State<AddGeneratorPage> {
 
               const SizedBox(height: 25),
 
-              // 🔢 Model Number
+              // Model Number
               const AppInputField(label: "Model Number"),
 
               const SizedBox(height: 25),
 
-              // 📍 Location Dropdown
+              // Location Dropdown
               AppDropdown(
                 label: "Location",
                 value: selectedLocation,
@@ -92,7 +92,7 @@ class _AddGeneratorPageState extends State<AddGeneratorPage> {
 
               const SizedBox(height: 25),
 
-              // ⛽ Tank Capacity
+              // Tank Capacity
               const AppInputField(
                 label: "Tank Capacity",
                 suffixText: "Liters",
@@ -101,7 +101,7 @@ class _AddGeneratorPageState extends State<AddGeneratorPage> {
 
               const SizedBox(height: 25),
 
-              // 🔥 Fuel Usage
+              // Fuel Usage
               const AppInputField(
                 label: "Fuel Usage",
                 suffixText: "Liters/hr",

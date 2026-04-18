@@ -27,16 +27,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.secondary,
-
       body: Stack(
         children: [
-
           Padding(
             padding: const EdgeInsets.only(bottom: navBarHeight),
             child: pages[selected],
           ),
-
-
           Positioned(
             bottom: 0,
             left: 0,

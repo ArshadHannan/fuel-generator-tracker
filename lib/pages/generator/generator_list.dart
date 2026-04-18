@@ -34,7 +34,7 @@ class GeneratorList extends StatelessWidget {
 
   Widget _buildCard(BuildContext context, Map<String, dynamic> gen) {
     return GestureDetector(
-      behavior: HitTestBehavior.opaque, // 👈 ensures full tap area
+      behavior: HitTestBehavior.opaque, // ensures full tap area
       onTap: () => onItemTap(gen),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
