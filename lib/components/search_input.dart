@@ -34,7 +34,7 @@ class AppSearchInput extends StatelessWidget {
           vertical: 16,
         ),
 
-        // 🔍 Icon on right
+        //Icon on right
         suffixIcon: const Icon(
           Icons.search,
           color: AppColors.textMuted,

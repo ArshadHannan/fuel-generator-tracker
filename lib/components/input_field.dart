@@ -56,7 +56,6 @@ class AppInputField extends StatelessWidget {
               vertical: 16,
             ),
 
-            // ✅ ALWAYS visible suffix (text OR icon)
             suffixIcon: suffixIcon != null
                 ? Icon(
               suffixIcon,
