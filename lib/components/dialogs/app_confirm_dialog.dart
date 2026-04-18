@@ -1,23 +1,39 @@
 import 'package:flutter/material.dart';
-import '../colors.dart';
-import 'default_button.dart';
+import '../../colors.dart';
+import '../default_button.dart';
+
+enum DialogVariant { primary, warning }
 
 class AppConfirmDialog extends StatelessWidget {
   final String title;
   final String confirmText;
   final String cancelText;
   final VoidCallback onConfirm;
+  final DialogVariant variant;
 
   const AppConfirmDialog({
     super.key,
     required this.title,
-    this.confirmText = "Save",
-    this.cancelText = "Cancel",
+    required this.confirmText,
     required this.onConfirm,
+    this.cancelText = "Cancel",
+    this.variant = DialogVariant.primary,
   });
 
   @override
   Widget build(BuildContext context) {
+    // 🔥 Variant handling
+    final bool isWarning = variant == DialogVariant.warning;
+
+    final Color accentColor =
+    isWarning ? AppColors.dangerText : AppColors.primary;
+
+    final ButtonVariant buttonVariant =
+    isWarning ? ButtonVariant.danger : ButtonVariant.primary;
+
+    final IconData icon =
+    isWarning ? Icons.warning_amber_rounded : Icons.question_mark;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 40),
@@ -25,28 +41,28 @@ class AppConfirmDialog extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: AppColors.secondary,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-
+            // 🔹 Icon
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.primary, width: 2),
+                border: Border.all(color: accentColor, width: 2),
               ),
-              child: const Icon(
-                Icons.question_mark,
-                color: AppColors.primary,
+              child: Icon(
+                icon,
+                color: accentColor,
                 size: 24,
               ),
             ),
 
             const SizedBox(height: 16),
 
-            // Title
+            // 🔹 Title
             Text(
               title,
               style: const TextStyle(
@@ -59,12 +75,13 @@ class AppConfirmDialog extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Buttons
+            // 🔹 Buttons
             Row(
               children: [
                 Expanded(
                   child: DefaultButton(
-                    text: "Cancel",
+                    text: cancelText,
+                    size: ButtonSize.md,
                     variant: ButtonVariant.secondary,
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -72,7 +89,9 @@ class AppConfirmDialog extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DefaultButton(
-                    text: "Save",
+                    text: confirmText,
+                    size: ButtonSize.md,
+                    variant: buttonVariant, // 🔥 dynamic
                     onPressed: () {
                       Navigator.pop(context);
                       onConfirm();
@@ -88,18 +107,22 @@ class AppConfirmDialog extends StatelessWidget {
   }
 }
 
-
+// ✅ Helper updated
 void showAppConfirmDialog({
   required BuildContext context,
   required String title,
+  required String confirmText,
   required VoidCallback onConfirm,
+  DialogVariant variant = DialogVariant.primary,
 }) {
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (_) => AppConfirmDialog(
       title: title,
+      confirmText: confirmText,
       onConfirm: onConfirm,
+      variant: variant,
     ),
   );
 }

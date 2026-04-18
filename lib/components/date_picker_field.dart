@@ -30,7 +30,7 @@ class AppDatePickerField extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            color: AppColors.textMuted,
+            color: AppColors.text,
             fontSize: 14,
           ),
         ),

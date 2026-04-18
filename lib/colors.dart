@@ -9,4 +9,8 @@ class AppColors {
 
   static const textMuted = Color(0xFF9D9D9D);
   static const text = Color(0xFFFFFFFF);
+
+  static const Color danger = Color(0xFFEF4444);
+  static const Color dangerSoft = Color(0xFF3B1F1F);
+  static const Color dangerText = Color(0xFFF87171);
 }

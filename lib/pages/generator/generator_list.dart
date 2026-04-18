@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../colors.dart';
-import 'generator_details_dialog.dart';
 
 class GeneratorList extends StatelessWidget {
   final List<Map<String, dynamic>> items;
   final ScrollController controller;
+  final Function(Map<String, dynamic>) onItemTap;
 
   const GeneratorList({
     super.key,
     required this.items,
     required this.controller,
+    required this.onItemTap,
   });
 
   @override
@@ -21,7 +22,7 @@ class GeneratorList extends StatelessWidget {
       radius: const Radius.circular(10),
       child: ListView.builder(
         controller: controller,
-        padding: const EdgeInsets.only(bottom: 100), // 👈 prevents FAB overlap
+        padding: const EdgeInsets.only(bottom: 100),
         itemCount: items.length,
         itemBuilder: (context, index) {
           final gen = items[index];
@@ -33,9 +34,8 @@ class GeneratorList extends StatelessWidget {
 
   Widget _buildCard(BuildContext context, Map<String, dynamic> gen) {
     return GestureDetector(
-      onTap: () {
-        showGeneratorDetails(context, gen);
-      },
+      behavior: HitTestBehavior.opaque, // 👈 ensures full tap area
+      onTap: () => onItemTap(gen),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
@@ -79,7 +79,6 @@ class GeneratorList extends StatelessWidget {
             SizedBox(
               width: 70,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     gen["remaining"],

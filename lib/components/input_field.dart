@@ -27,7 +27,7 @@ class AppInputField extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            color: AppColors.textMuted,
+            color: AppColors.text,
             fontSize: 14,
           ),
         ),
@@ -71,7 +71,7 @@ class AppInputField extends StatelessWidget {
                   suffixText!,
                   style: const TextStyle(
                     color: AppColors.textMuted,
-                    fontSize: 14,
+                    fontSize: 12,
                   ),
                 ),
               ),

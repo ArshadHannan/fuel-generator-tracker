@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../components/app_confirm_dialog.dart';
-import '../../components/app_success_dialog.dart';
+import '../../components/dialogs/app_confirm_dialog.dart';
+import '../../components/dialogs/app_success_dialog.dart';
+import '../../components/default_button.dart';
 import '../../components/input_field.dart';
-import '../../components/full_width_button.dart';
 import '../../components/select_dropdown.dart';
 import '../../components/date_picker_field.dart';
 
@@ -52,15 +52,20 @@ class _RuntimePageState extends State<RuntimePage> {
         ),
         const SizedBox(height: 25),
 
-        const AppInputField(label: 'Number of Hours'),
+        const AppInputField(
+            label: 'Number of Hours',
+            suffixText: "Hrs",
+        ),
         const SizedBox(height: 50),
 
-        FullWidthButton(
+        DefaultButton(
           text: "Save Runtime Details",
+          size: ButtonSize.lg,
           onPressed: () {
             showAppConfirmDialog(
               context: context,
               title: "Are you sure?",
+              confirmText: "Save",
               onConfirm: () {
                 // Save logic here
 
