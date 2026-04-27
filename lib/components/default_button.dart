@@ -18,7 +18,6 @@ class DefaultButton extends StatelessWidget {
     this.variant = ButtonVariant.primary,
     this.size = ButtonSize.lg,
   });
-
   @override
   Widget build(BuildContext context) {
     final bool isLarge = size == ButtonSize.lg;
