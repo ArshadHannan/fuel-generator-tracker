@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "139587769059",
+    "project_id": "fuel-tracker-1d754",
+    "storage_bucket": "fuel-tracker-1d754.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139587769059:android:4e25351e6d87a5c26e2bd6",
+        "android_client_info": {
+          "package_name": "com.example.my_flutter_app1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWkhDfHRB-wbGLF4ezXd75lxBpL7YOi3E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
