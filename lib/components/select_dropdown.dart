@@ -6,6 +6,7 @@ class AppDropdown extends StatelessWidget {
   final List<String> items;
   final String? value;
   final Function(String?) onChanged;
+  final String? errorText;
 
   const AppDropdown({
     super.key,
@@ -13,6 +14,7 @@ class AppDropdown extends StatelessWidget {
     required this.items,
     required this.onChanged,
     this.value,
+    this.errorText,
   });
 
   @override
@@ -59,6 +61,19 @@ class AppDropdown extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
             ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppColors.danger),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+            ),
+            errorStyle: const TextStyle(
+              color: AppColors.dangerText,
+              fontSize: 12,
+            ),
+            errorText: errorText,
           ),
 
           icon: const Icon(

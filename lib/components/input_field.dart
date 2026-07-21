@@ -8,6 +8,7 @@ class AppInputField extends StatelessWidget {
   final IconData? suffixIcon;
   final TextEditingController? controller;
   final TextInputType? keyboardType;
+  final String? errorText;
 
   const AppInputField({
     super.key,
@@ -17,6 +18,7 @@ class AppInputField extends StatelessWidget {
     this.suffixIcon,
     this.controller,
     this.keyboardType,
+    this.errorText,
   });
 
   @override
@@ -82,6 +84,19 @@ class AppInputField extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
             ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppColors.danger),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+            ),
+            errorStyle: const TextStyle(
+              color: AppColors.dangerText,
+              fontSize: 12,
+            ),
+            errorText: errorText,
           ),
         ),
       ],
