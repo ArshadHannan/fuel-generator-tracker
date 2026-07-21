@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../components/search_input.dart';
 import '../../colors.dart';
@@ -29,12 +30,6 @@ class _GeneratorPageState extends State<GeneratorPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> generators = [
-      {"name": "CAT - 8KS1", "location": "Warehouse A", "remaining": "600 L"},
-      {"name": "FG P200-3", "location": "Site B", "remaining": "420 L"},
-      {"name": "GTR 4493", "location": "Factory Zone", "remaining": "300 L"},
-    ];
-
     return Scaffold(
       backgroundColor: Colors.transparent,
 
@@ -63,26 +58,74 @@ class _GeneratorPageState extends State<GeneratorPage> {
               const SizedBox(height: 25),
 
               Expanded(
-                child: Scrollbar(
-                  controller: _scrollController,
-                  thumbVisibility: true,
-                  thickness: 4,
-                  radius: const Radius.circular(10),
-                  child: GeneratorList(
-                    items: generators,
-                    controller: _scrollController,
-
-                    // navigation handled here
-                    onItemTap: (gen) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              GeneratorUpdatePage(generator: gen),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('generators')
+                      .orderBy('createdAt', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Failed to load generators',
+                          style: TextStyle(color: AppColors.textMuted),
                         ),
                       );
-                    },
-                  ),
+                    }
+
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    final docs = snapshot.data!.docs;
+
+                    if (docs.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No generators yet',
+                          style: TextStyle(color: AppColors.textMuted),
+                        ),
+                      );
+                    }
+
+                    final generators = docs.map((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      final remaining = data['remaining'] as num?;
+                      return {
+                        'id': doc.id,
+                        'name': data['name'] ?? '',
+                        'location': data['location'] ?? '',
+                        'remaining':
+                            '${remaining?.toStringAsFixed(0) ?? '0'} L',
+                        'fuelCapacity': data['fuelCapacity'],
+                        'fuelUsage': data['fuelUsage'],
+                      };
+                    }).toList();
+
+                    return Scrollbar(
+                      controller: _scrollController,
+                      thumbVisibility: true,
+                      thickness: 4,
+                      radius: const Radius.circular(10),
+                      child: GeneratorList(
+                        items: generators,
+                        controller: _scrollController,
+
+                        // navigation handled here
+                        onItemTap: (gen) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  GeneratorUpdatePage(generator: gen),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
