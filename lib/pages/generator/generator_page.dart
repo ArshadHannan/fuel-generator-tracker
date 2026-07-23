@@ -135,13 +135,18 @@ class _GeneratorPageState extends State<GeneratorPage> {
 
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final saved = await Navigator.push<bool>(
             context,
             MaterialPageRoute(
               builder: (_) => const AddGeneratorPage(),
             ),
           );
+          if (saved == true && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Generator saved successfully")),
+            );
+          }
         },
         child: const Icon(Icons.add, color: Colors.black),
       ),

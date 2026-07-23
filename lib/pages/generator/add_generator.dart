@@ -6,7 +6,6 @@ import '../../components/input_field.dart';
 import '../../components/select_dropdown.dart';
 import '../../components/date_picker_field.dart';
 import '../../components/dialogs/app_confirm_dialog.dart';
-import '../../components/dialogs/app_success_dialog.dart';
 
 class AddGeneratorPage extends StatefulWidget {
   const AddGeneratorPage({super.key});
@@ -101,9 +100,14 @@ class _AddGeneratorPageState extends State<AddGeneratorPage> {
         'fuelUsage': double.tryParse(fuelUsageController.text.trim()),
         'createdAt': FieldValue.serverTimestamp(),
       });
-      if (mounted) showSuccessDialog(context, "Saved successfully");
-    } finally {
-      if (mounted) setState(() => saving = false);
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to save generator")),
+        );
+        setState(() => saving = false);
+      }
     }
   }
 
@@ -211,7 +215,7 @@ class _AddGeneratorPageState extends State<AddGeneratorPage> {
 
               // Save Button
               DefaultButton(
-                text: "Save Generator",
+                text: saving ? "Saving..." : "Save Generator",
                 size: ButtonSize.lg,
                 onPressed: _onSavePressed,
               )
