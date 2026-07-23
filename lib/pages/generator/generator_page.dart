@@ -92,13 +92,11 @@ class _GeneratorPageState extends State<GeneratorPage> {
 
                     final generators = docs.map((doc) {
                       final data = doc.data() as Map<String, dynamic>;
-                      final remaining = data['remaining'] as num?;
                       return {
                         'id': doc.id,
                         'name': data['name'] ?? '',
                         'location': data['location'] ?? '',
-                        'remaining':
-                            '${remaining?.toStringAsFixed(0) ?? '0'} L',
+                        'remaining': data['remaining'],
                         'fuelCapacity': data['fuelCapacity'],
                         'fuelUsage': data['fuelUsage'],
                       };
@@ -114,13 +112,20 @@ class _GeneratorPageState extends State<GeneratorPage> {
                         controller: _scrollController,
 
                         // navigation handled here
-                        onItemTap: (gen) {
-                          Navigator.push(
+                        onItemTap: (gen) async {
+                          final result = await Navigator.push<String>(
                             context,
                             MaterialPageRoute(
                               builder: (_) =>
                                   GeneratorUpdatePage(generator: gen),
                             ),
+                          );
+                          if (!context.mounted || result == null) return;
+                          final message = result == 'deleted'
+                              ? "Generator deleted successfully"
+                              : "Generator updated successfully";
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(message)),
                           );
                         },
                       ),

@@ -1,9 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../colors.dart';
 import '../../components/input_field.dart';
+import '../../components/select_dropdown.dart';
 import '../../components/default_button.dart';
 import '../../components/dialogs/app_confirm_dialog.dart';
 import '../../components/dialogs/app_success_dialog.dart';
+
+const _locations = ["Warehouse A", "Site B", "Factory Zone"];
+
+String _numText(dynamic value) {
+  if (value == null) return "";
+  if (value is num) return value.toStringAsFixed(0);
+  return value.toString();
+}
 
 class GeneratorUpdatePage extends StatefulWidget {
   final Map<String, dynamic> generator;
@@ -20,41 +30,143 @@ class GeneratorUpdatePage extends StatefulWidget {
 
 class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
   late TextEditingController nameController;
-  late TextEditingController locationController;
   late TextEditingController remainingController;
   late TextEditingController fuelCapacityController;
   late TextEditingController fuelUsageController;
+
+  String? selectedLocation;
+
+  bool submitted = false;
+  bool saving = false;
 
   @override
   void initState() {
     super.initState();
 
     nameController =
-        TextEditingController(text: widget.generator["name"]);
+        TextEditingController(text: widget.generator["name"]?.toString());
 
-    locationController =
-        TextEditingController(text: widget.generator["location"]);
+    final currentLocation = widget.generator["location"]?.toString();
+    selectedLocation =
+        _locations.contains(currentLocation) ? currentLocation : null;
 
     remainingController =
-        TextEditingController(text: widget.generator["remaining"]);
+        TextEditingController(text: _numText(widget.generator["remaining"]));
 
     fuelCapacityController = TextEditingController(
-      text: widget.generator["fuelCapacity"]?.toString() ?? "",
+      text: _numText(widget.generator["fuelCapacity"]),
     );
 
     fuelUsageController = TextEditingController(
-      text: widget.generator["fuelUsage"]?.toString() ?? "",
+      text: _numText(widget.generator["fuelUsage"]),
     );
+
+    for (final c in [
+      nameController,
+      remainingController,
+      fuelCapacityController,
+      fuelUsageController,
+    ]) {
+      c.addListener(_onFieldEdited);
+    }
   }
 
   @override
   void dispose() {
     nameController.dispose();
-    locationController.dispose();
     remainingController.dispose();
     fuelCapacityController.dispose();
     fuelUsageController.dispose();
     super.dispose();
+  }
+
+  void _onFieldEdited() {
+    if (submitted) setState(() {});
+  }
+
+  String? get _nameError =>
+      submitted && nameController.text.trim().isEmpty
+          ? "Generator name is required"
+          : null;
+
+  String? get _locationError =>
+      submitted && selectedLocation == null ? "Location is required" : null;
+
+  String? get _remainingError => submitted &&
+          double.tryParse(remainingController.text.trim()) == null
+      ? "Enter a valid remaining fuel"
+      : null;
+
+  String? get _fuelCapacityError => submitted &&
+          double.tryParse(fuelCapacityController.text.trim()) == null
+      ? "Enter a valid fuel capacity"
+      : null;
+
+  String? get _fuelUsageError => submitted &&
+          double.tryParse(fuelUsageController.text.trim()) == null
+      ? "Enter a valid fuel usage"
+      : null;
+
+  bool _validate() {
+    return _nameError == null &&
+        _locationError == null &&
+        _remainingError == null &&
+        _fuelCapacityError == null &&
+        _fuelUsageError == null;
+  }
+
+  void _onUpdatePressed() {
+    if (saving) return;
+    setState(() => submitted = true);
+    if (!_validate()) return;
+    showAppConfirmDialog(
+      context: context,
+      title: "Update generator?",
+      confirmText: "Update",
+      onConfirm: _updateGenerator,
+    );
+  }
+
+  Future<void> _updateGenerator() async {
+    setState(() => saving = true);
+    try {
+      await FirebaseFirestore.instance
+          .collection('generators')
+          .doc(widget.generator['id'] as String)
+          .update({
+        'name': nameController.text.trim(),
+        'location': selectedLocation,
+        'remaining': double.tryParse(remainingController.text.trim()),
+        'fuelCapacity': double.tryParse(fuelCapacityController.text.trim()),
+        'fuelUsage': double.tryParse(fuelUsageController.text.trim()),
+      });
+      if (mounted) Navigator.pop(context, 'updated');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to update generator")),
+        );
+        setState(() => saving = false);
+      }
+    }
+  }
+
+  Future<void> _deleteGenerator() async {
+    setState(() => saving = true);
+    try {
+      await FirebaseFirestore.instance
+          .collection('generators')
+          .doc(widget.generator['id'] as String)
+          .delete();
+      if (mounted) Navigator.pop(context, 'deleted');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to delete generator")),
+        );
+        setState(() => saving = false);
+      }
+    }
   }
 
   @override
@@ -100,13 +212,21 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
                       AppInputField(
                         label: "Generator Name",
                         controller: nameController,
+                        errorText: _nameError,
                       ),
 
                       const SizedBox(height: 25),
 
-                      AppInputField(
+                      AppDropdown(
                         label: "Location",
-                        controller: locationController,
+                        value: selectedLocation,
+                        errorText: _locationError,
+                        items: _locations,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedLocation = value;
+                          });
+                        },
                       ),
 
                       const SizedBox(height: 25),
@@ -116,6 +236,7 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
                         controller: remainingController,
                         suffixText: "L ",
                         keyboardType: TextInputType.number,
+                        errorText: _remainingError,
                       ),
 
                       const SizedBox(height: 25),
@@ -125,6 +246,7 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
                         controller: fuelCapacityController,
                         suffixText: "L ",
                         keyboardType: TextInputType.number,
+                        errorText: _fuelCapacityError,
                       ),
 
                       const SizedBox(height: 25),
@@ -134,6 +256,7 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
                         controller: fuelUsageController,
                         suffixText: "L/hr ",
                         keyboardType: TextInputType.number,
+                        errorText: _fuelUsageError,
                       ),
 
                       const SizedBox(height: 50),
@@ -142,19 +265,9 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
                         children: [
                           Expanded(
                             child: DefaultButton(
-                              text: "Update",
+                              text: saving ? "Updating..." : "Update",
                               size: ButtonSize.md,
-                              onPressed: () {
-                                showAppConfirmDialog(
-                                  context: context,
-                                  title: "Update generator?",
-                                  confirmText: "Update",
-                                  onConfirm: () {
-                                    showSuccessDialog(
-                                        context, "Updated successfully");
-                                  },
-                                );
-                              },
+                              onPressed: _onUpdatePressed,
                             ),
                           ),
 
@@ -163,26 +276,17 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
                           Expanded(
                             child:
                             DefaultButton(
-                              text: "Delete",
+                              text: saving ? "Deleting..." : "Delete",
                               variant: ButtonVariant.danger,
                               size: ButtonSize.md,
                               onPressed: () {
+                                if (saving) return;
                                 showAppConfirmDialog(
                                   context: context,
                                   title: "Delete this generator?",
                                   confirmText: "Delete",
                                   variant: DialogVariant.warning,
-                                  onConfirm: () {
-                                    showSuccessDialog(
-                                        context, "Deleted successfully");
-
-                                    Future.delayed(
-                                        const Duration(seconds: 2), () {
-                                      if (mounted) {
-                                        Navigator.pop(context);
-                                      }
-                                    });
-                                  },
+                                  onConfirm: _deleteGenerator,
                                 );
                               },
                             ),
