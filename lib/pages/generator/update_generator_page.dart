@@ -6,6 +6,7 @@ import '../../components/select_dropdown.dart';
 import '../../components/default_button.dart';
 import '../../components/dialogs/app_confirm_dialog.dart';
 import '../../components/dialogs/app_success_dialog.dart';
+import 'remaining_fuel.dart';
 
 const _locations = ["Warehouse A", "Site B", "Factory Zone"];
 
@@ -30,7 +31,6 @@ class GeneratorUpdatePage extends StatefulWidget {
 
 class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
   late TextEditingController nameController;
-  late TextEditingController remainingController;
   late TextEditingController fuelCapacityController;
   late TextEditingController fuelUsageController;
 
@@ -50,9 +50,6 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
     selectedLocation =
         _locations.contains(currentLocation) ? currentLocation : null;
 
-    remainingController =
-        TextEditingController(text: _numText(widget.generator["remaining"]));
-
     fuelCapacityController = TextEditingController(
       text: _numText(widget.generator["fuelCapacity"]),
     );
@@ -63,7 +60,6 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
 
     for (final c in [
       nameController,
-      remainingController,
       fuelCapacityController,
       fuelUsageController,
     ]) {
@@ -74,7 +70,6 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
   @override
   void dispose() {
     nameController.dispose();
-    remainingController.dispose();
     fuelCapacityController.dispose();
     fuelUsageController.dispose();
     super.dispose();
@@ -92,11 +87,6 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
   String? get _locationError =>
       submitted && selectedLocation == null ? "Location is required" : null;
 
-  String? get _remainingError => submitted &&
-          double.tryParse(remainingController.text.trim()) == null
-      ? "Enter a valid remaining fuel"
-      : null;
-
   String? get _fuelCapacityError => submitted &&
           double.tryParse(fuelCapacityController.text.trim()) == null
       ? "Enter a valid fuel capacity"
@@ -110,7 +100,6 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
   bool _validate() {
     return _nameError == null &&
         _locationError == null &&
-        _remainingError == null &&
         _fuelCapacityError == null &&
         _fuelUsageError == null;
   }
@@ -136,7 +125,6 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
           .update({
         'name': nameController.text.trim(),
         'location': selectedLocation,
-        'remaining': double.tryParse(remainingController.text.trim()),
         'fuelCapacity': double.tryParse(fuelCapacityController.text.trim()),
         'fuelUsage': double.tryParse(fuelUsageController.text.trim()),
       });
@@ -167,6 +155,36 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
         setState(() => saving = false);
       }
     }
+  }
+
+  Widget _buildRemainingFuelDisplay() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Remaining Fuel",
+          style: TextStyle(color: AppColors.text, fontSize: 14),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+            color: AppColors.secondaryFg,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: RemainingFuel(
+            generatorId: widget.generator['id'] as String,
+            capacity: (widget.generator['fuelCapacity'] as num?)?.toDouble() ?? 0,
+            usageRate: (widget.generator['fuelUsage'] as num?)?.toDouble() ?? 0,
+            builder: (context, remaining) => Text(
+              "${remaining.toStringAsFixed(0)} L (calculated)",
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 15),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -231,13 +249,7 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
 
                       const SizedBox(height: 25),
 
-                      AppInputField(
-                        label: "Remaining Fuel",
-                        controller: remainingController,
-                        suffixText: "L ",
-                        keyboardType: TextInputType.number,
-                        errorText: _remainingError,
-                      ),
+                      _buildRemainingFuelDisplay(),
 
                       const SizedBox(height: 25),
 

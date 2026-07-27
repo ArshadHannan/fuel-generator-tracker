@@ -88,15 +88,13 @@ class _AddGeneratorPageState extends State<AddGeneratorPage> {
   Future<void> _saveGenerator() async {
     setState(() => saving = true);
     try {
-      final fuelCapacity = double.tryParse(tankCapacityController.text.trim());
       await FirebaseFirestore.instance.collection('generators').add({
         'createdDate': selectedDate != null
             ? Timestamp.fromDate(selectedDate!)
             : null,
         'name': modelNumberController.text.trim(),
         'location': selectedLocation,
-        'fuelCapacity': fuelCapacity,
-        'remaining': fuelCapacity,
+        'fuelCapacity': double.tryParse(tankCapacityController.text.trim()),
         'fuelUsage': double.tryParse(fuelUsageController.text.trim()),
         'createdAt': FieldValue.serverTimestamp(),
       });

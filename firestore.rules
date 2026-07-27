@@ -13,6 +13,20 @@ service cloud.firestore {
       allow delete: if true;
     }
 
+    match /runtime_logs/{logId} {
+      allow read: if true;
+
+      allow create: if isValidRuntimeLog(request.resource.data);
+
+      allow update, delete: if false;
+    }
+
+    match /fuel_logs/{logId} {
+      allow read: if true;
+
+      allow write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
@@ -21,13 +35,12 @@ service cloud.firestore {
 
 function isValidGenerator(data) {
   return data.keys().hasOnly([
-        'name', 'location', 'fuelCapacity', 'remaining',
+        'name', 'location', 'fuelCapacity',
         'fuelUsage', 'createdDate', 'createdAt'
       ]) &&
       data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
       data.location is string && data.location.size() > 0 && data.location.size() <= 100 &&
       data.fuelCapacity is number && data.fuelCapacity >= 0 &&
-      data.remaining is number && data.remaining >= 0 &&
       data.fuelUsage is number && data.fuelUsage >= 0 &&
       data.createdDate is timestamp &&
       data.createdAt is timestamp;
@@ -35,11 +48,21 @@ function isValidGenerator(data) {
 
 function isValidUpdate(newData, oldData) {
   return newData.diff(oldData).affectedKeys().hasOnly([
-        'name', 'location', 'fuelCapacity', 'remaining', 'fuelUsage'
+        'name', 'location', 'fuelCapacity', 'fuelUsage'
       ]) &&
       newData.name is string && newData.name.size() > 0 && newData.name.size() <= 100 &&
       newData.location is string && newData.location.size() > 0 && newData.location.size() <= 100 &&
       newData.fuelCapacity is number && newData.fuelCapacity >= 0 &&
-      newData.remaining is number && newData.remaining >= 0 &&
       newData.fuelUsage is number && newData.fuelUsage >= 0;
+}
+
+function isValidRuntimeLog(data) {
+  return data.keys().hasOnly([
+        'generatorId', 'generatorName', 'date', 'hours', 'createdAt'
+      ]) &&
+      data.generatorId is string && data.generatorId.size() > 0 &&
+      data.generatorName is string && data.generatorName.size() > 0 &&
+      data.date is timestamp &&
+      data.hours is number && data.hours > 0 &&
+      data.createdAt is timestamp;
 }
