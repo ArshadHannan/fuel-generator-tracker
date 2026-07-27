@@ -5,12 +5,14 @@ class AppDatePickerField extends StatelessWidget {
   final String label;
   final DateTime? value;
   final Function(DateTime) onChanged;
+  final String? errorText;
 
   const AppDatePickerField({
     super.key,
     required this.label,
     required this.value,
     required this.onChanged,
+    this.errorText,
   });
 
   @override
@@ -59,6 +61,9 @@ class AppDatePickerField extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.secondaryFg,
               borderRadius: BorderRadius.circular(8),
+              border: errorText != null
+                  ? Border.all(color: AppColors.danger)
+                  : null,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -84,6 +89,20 @@ class AppDatePickerField extends StatelessWidget {
             ),
           ),
         ),
+
+        if (errorText != null) ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: Text(
+              errorText!,
+              style: const TextStyle(
+                color: AppColors.dangerText,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

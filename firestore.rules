@@ -1,0 +1,45 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /generators/{generatorId} {
+      allow read: if true;
+
+      allow create: if isValidGenerator(request.resource.data);
+
+      allow update: if isValidUpdate(request.resource.data, resource.data);
+
+      allow delete: if true;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+function isValidGenerator(data) {
+  return data.keys().hasOnly([
+        'name', 'location', 'fuelCapacity', 'remaining',
+        'fuelUsage', 'createdDate', 'createdAt'
+      ]) &&
+      data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+      data.location is string && data.location.size() > 0 && data.location.size() <= 100 &&
+      data.fuelCapacity is number && data.fuelCapacity >= 0 &&
+      data.remaining is number && data.remaining >= 0 &&
+      data.fuelUsage is number && data.fuelUsage >= 0 &&
+      data.createdDate is timestamp &&
+      data.createdAt is timestamp;
+}
+
+function isValidUpdate(newData, oldData) {
+  return newData.diff(oldData).affectedKeys().hasOnly([
+        'name', 'location', 'fuelCapacity', 'remaining', 'fuelUsage'
+      ]) &&
+      newData.name is string && newData.name.size() > 0 && newData.name.size() <= 100 &&
+      newData.location is string && newData.location.size() > 0 && newData.location.size() <= 100 &&
+      newData.fuelCapacity is number && newData.fuelCapacity >= 0 &&
+      newData.remaining is number && newData.remaining >= 0 &&
+      newData.fuelUsage is number && newData.fuelUsage >= 0;
+}

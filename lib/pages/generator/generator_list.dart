@@ -81,7 +81,7 @@ class GeneratorList extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    gen["remaining"],
+                    '${(gen["remaining"] as num?)?.toStringAsFixed(0) ?? "0"} L',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
