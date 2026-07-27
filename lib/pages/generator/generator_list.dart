@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../colors.dart';
+import 'remaining_fuel.dart';
 
 class GeneratorList extends StatelessWidget {
   final List<Map<String, dynamic>> items;
@@ -80,13 +81,18 @@ class GeneratorList extends StatelessWidget {
               width: 70,
               child: Column(
                 children: [
-                  Text(
-                    '${(gen["remaining"] as num?)?.toStringAsFixed(0) ?? "0"} L',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  RemainingFuel(
+                    generatorId: gen["id"] as String,
+                    capacity: (gen["fuelCapacity"] as num?)?.toDouble() ?? 0,
+                    usageRate: (gen["fuelUsage"] as num?)?.toDouble() ?? 0,
+                    builder: (context, remaining) => Text(
+                      '${remaining.toStringAsFixed(0)} L',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 4),
                   const Text(

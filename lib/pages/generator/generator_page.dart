@@ -96,7 +96,6 @@ class _GeneratorPageState extends State<GeneratorPage> {
                         'id': doc.id,
                         'name': data['name'] ?? '',
                         'location': data['location'] ?? '',
-                        'remaining': data['remaining'],
                         'fuelCapacity': data['fuelCapacity'],
                         'fuelUsage': data['fuelUsage'],
                       };
