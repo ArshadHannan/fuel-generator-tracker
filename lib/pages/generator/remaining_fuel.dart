@@ -1,12 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-double _sumField(QuerySnapshot<Object?>? snapshot, String field) {
+double sumField(QuerySnapshot<Object?>? snapshot, String field) {
   final docs = snapshot?.docs ?? [];
   return docs.fold<double>(0, (acc, doc) {
     final data = doc.data() as Map<String, dynamic>;
     return acc + ((data[field] as num?)?.toDouble() ?? 0);
   });
+}
+
+double calculateRemaining({
+  required double capacity,
+  required double usageRate,
+  required double totalHours,
+  required double totalAdded,
+}) {
+  final used = usageRate * totalHours;
+  return (capacity - used + totalAdded)
+      .clamp(0, capacity <= 0 ? 0 : capacity)
+      .toDouble();
 }
 
 class RemainingFuel extends StatelessWidget {
@@ -31,7 +43,7 @@ class RemainingFuel extends StatelessWidget {
           .where('generatorId', isEqualTo: generatorId)
           .snapshots(),
       builder: (context, runtimeSnapshot) {
-        final totalHours = _sumField(runtimeSnapshot.data, 'hours');
+        final totalHours = sumField(runtimeSnapshot.data, 'hours');
 
         return StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
@@ -39,12 +51,14 @@ class RemainingFuel extends StatelessWidget {
               .where('generatorId', isEqualTo: generatorId)
               .snapshots(),
           builder: (context, fuelSnapshot) {
-            final totalAdded = _sumField(fuelSnapshot.data, 'liters');
+            final totalAdded = sumField(fuelSnapshot.data, 'liters');
 
-            final used = usageRate * totalHours;
-            final remaining = (capacity - used + totalAdded)
-                .clamp(0, capacity <= 0 ? 0 : capacity)
-                .toDouble();
+            final remaining = calculateRemaining(
+              capacity: capacity,
+              usageRate: usageRate,
+              totalHours: totalHours,
+              totalAdded: totalAdded,
+            );
 
             return builder(context, remaining);
           },

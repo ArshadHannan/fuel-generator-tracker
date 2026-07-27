@@ -6,6 +6,7 @@ import '../../components/default_button.dart';
 import '../../components/input_field.dart';
 import '../../components/select_dropdown.dart';
 import '../../components/date_picker_field.dart';
+import '../generator/remaining_fuel.dart';
 
 class RuntimePage extends StatefulWidget {
   const RuntimePage({super.key});
@@ -45,21 +46,33 @@ class _RuntimePageState extends State<RuntimePage> {
   String? get _dateError =>
       submitted && selectedDate == null ? "Date is required" : null;
 
-  String? get _hoursError =>
-      submitted && double.tryParse(hoursController.text.trim()) == null
-          ? "Enter a valid number of hours"
-          : null;
-
-  bool _validate() {
-    return _generatorError == null &&
-        _dateError == null &&
-        _hoursError == null;
+  String? _hoursError(double? remaining, double usageRate) {
+    if (!submitted) return null;
+    final hours = double.tryParse(hoursController.text.trim());
+    if (hours == null) return "Enter a valid number of hours";
+    if (remaining != null && usageRate > 0) {
+      final fuelNeeded = hours * usageRate;
+      if (fuelNeeded > remaining) {
+        return "Not enough fuel remaining (${remaining.toStringAsFixed(1)} L left)";
+      }
+    }
+    return null;
   }
 
-  void _onSavePressed(String generatorId) {
+  bool _validate(double? remaining, double usageRate) {
+    return _generatorError == null &&
+        _dateError == null &&
+        _hoursError(remaining, usageRate) == null;
+  }
+
+  void _onSavePressed(
+    String generatorId,
+    double? remaining,
+    double usageRate,
+  ) {
     if (saving) return;
     setState(() => submitted = true);
-    if (!_validate()) return;
+    if (!_validate(remaining, usageRate)) return;
     showAppConfirmDialog(
       context: context,
       title: "Are you sure?",
@@ -103,61 +116,126 @@ class _RuntimePageState extends State<RuntimePage> {
       stream: FirebaseFirestore.instance.collection('generators').snapshots(),
       builder: (context, snapshot) {
         final docs = snapshot.data?.docs ?? [];
-        final generatorNameToId = <String, String>{
+        final generatorsByName = <String, Map<String, dynamic>>{
           for (final doc in docs)
-            (doc.data() as Map<String, dynamic>)['name'] as String? ?? '':
-              doc.id,
+            if (((doc.data() as Map<String, dynamic>)['name'] as String?)
+                    ?.isNotEmpty ??
+                false)
+              (doc.data() as Map<String, dynamic>)['name'] as String: {
+                'id': doc.id,
+                'capacity': ((doc.data() as Map<String, dynamic>)['fuelCapacity']
+                            as num?)
+                        ?.toDouble() ??
+                    0,
+                'usageRate': ((doc.data() as Map<String, dynamic>)['fuelUsage']
+                            as num?)
+                        ?.toDouble() ??
+                    0,
+              },
         };
-        final generatorNames = generatorNameToId.keys
-            .where((name) => name.isNotEmpty)
-            .toList();
+        final generatorNames = generatorsByName.keys.toList();
+        final selected = selectedGeneratorName != null
+            ? generatorsByName[selectedGeneratorName]
+            : null;
 
-        return Column(
-          children: [
-            AppDropdown(
-              label: "Generator",
-              value: selectedGeneratorName,
-              errorText: _generatorError,
-              items: generatorNames,
-              onChanged: (value) {
-                setState(() {
-                  selectedGeneratorName = value;
-                });
+        if (selected == null) {
+          return _buildForm(
+            generatorNames: generatorNames,
+            generatorId: '',
+            remaining: null,
+            usageRate: 0,
+          );
+        }
+
+        final generatorId = selected['id'] as String;
+        final capacity = selected['capacity'] as double;
+        final usageRate = selected['usageRate'] as double;
+
+        return StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('runtime_logs')
+              .where('generatorId', isEqualTo: generatorId)
+              .snapshots(),
+          builder: (context, runtimeSnapshot) {
+            final totalHours = sumField(runtimeSnapshot.data, 'hours');
+
+            return StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('fuel_logs')
+                  .where('generatorId', isEqualTo: generatorId)
+                  .snapshots(),
+              builder: (context, fuelSnapshot) {
+                final totalAdded = sumField(fuelSnapshot.data, 'liters');
+                final remaining = calculateRemaining(
+                  capacity: capacity,
+                  usageRate: usageRate,
+                  totalHours: totalHours,
+                  totalAdded: totalAdded,
+                );
+
+                return _buildForm(
+                  generatorNames: generatorNames,
+                  generatorId: generatorId,
+                  remaining: remaining,
+                  usageRate: usageRate,
+                );
               },
-            ),
-            const SizedBox(height: 25),
-
-            AppDatePickerField(
-              label: "Date",
-              value: selectedDate,
-              errorText: _dateError,
-              onChanged: (date) {
-                setState(() {
-                  selectedDate = date;
-                });
-              },
-            ),
-            const SizedBox(height: 25),
-
-            AppInputField(
-              label: 'Number of Hours',
-              suffixText: "Hrs",
-              keyboardType: TextInputType.number,
-              controller: hoursController,
-              errorText: _hoursError,
-            ),
-            const SizedBox(height: 50),
-
-            DefaultButton(
-              text: saving ? "Saving..." : "Save Runtime Details",
-              size: ButtonSize.lg,
-              onPressed: () => _onSavePressed(
-                generatorNameToId[selectedGeneratorName] ?? '',
-              ),
-            )
-          ],
+            );
+          },
         );
       },
+    );
+  }
+
+  Widget _buildForm({
+    required List<String> generatorNames,
+    required String generatorId,
+    required double? remaining,
+    required double usageRate,
+  }) {
+    return Column(
+      children: [
+        AppDropdown(
+          label: "Generator",
+          value: selectedGeneratorName,
+          errorText: _generatorError,
+          items: generatorNames,
+          onChanged: (value) {
+            setState(() {
+              selectedGeneratorName = value;
+            });
+          },
+        ),
+        const SizedBox(height: 25),
+
+        AppDatePickerField(
+          label: "Date",
+          value: selectedDate,
+          errorText: _dateError,
+          onChanged: (date) {
+            setState(() {
+              selectedDate = date;
+            });
+          },
+        ),
+        const SizedBox(height: 25),
+
+        AppInputField(
+          label: 'Number of Hours',
+          suffixText: "Hrs",
+          keyboardType: TextInputType.number,
+          controller: hoursController,
+          errorText: _hoursError(remaining, usageRate),
+        ),
+        const SizedBox(height: 50),
+
+        DefaultButton(
+          text: saving ? "Saving..." : "Save Runtime Details",
+          size: ButtonSize.lg,
+          onPressed: () =>
+              _onSavePressed(generatorId, remaining, usageRate),
+        )
+      ],
     );
   }
 }
