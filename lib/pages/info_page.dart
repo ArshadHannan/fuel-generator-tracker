@@ -1,5 +1,24 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../colors.dart';
+
+String _platformName() {
+  switch (defaultTargetPlatform) {
+    case TargetPlatform.android:
+      return "Android";
+    case TargetPlatform.iOS:
+      return "iOS";
+    case TargetPlatform.macOS:
+      return "macOS";
+    case TargetPlatform.windows:
+      return "Windows";
+    case TargetPlatform.linux:
+      return "Linux";
+    case TargetPlatform.fuchsia:
+      return "Fuchsia";
+  }
+}
 
 class InfoPage extends StatelessWidget {
   const InfoPage({super.key});
@@ -51,7 +70,20 @@ class InfoPage extends StatelessWidget {
                     const SizedBox(height: 25),
 
                     // Info list
-                    _buildInfoGroup(),
+                    FutureBuilder<PackageInfo>(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        }
+                        return _buildInfoGroup(snapshot.data!);
+                      },
+                    ),
 
                     const SizedBox(height: 20),
 
@@ -69,27 +101,27 @@ class InfoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoGroup() {
+  Widget _buildInfoGroup(PackageInfo packageInfo) {
     final items = [
       {
         "icon": "assets/app.png",
         "title": "App Name",
-        "value": "Fuel Tracker",
+        "value": packageInfo.appName,
       },
       {
         "icon": "assets/version.png",
         "title": "Version",
-        "value": "1.0.23",
+        "value": packageInfo.version,
       },
       {
         "icon": "assets/build.png",
         "title": "Build Number",
-        "value": "2025.03.12.4",
+        "value": packageInfo.buildNumber,
       },
       {
         "icon": "assets/android.png",
         "title": "Platform",
-        "value": "Android",
+        "value": _platformName(),
       },
       {
         "icon": "assets/company.png",
