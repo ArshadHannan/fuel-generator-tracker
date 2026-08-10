@@ -24,7 +24,9 @@ service cloud.firestore {
     match /fuel_logs/{logId} {
       allow read: if true;
 
-      allow write: if false;
+      allow create: if isValidFuelLog(request.resource.data);
+
+      allow update, delete: if false;
     }
 
     match /{document=**} {
@@ -64,5 +66,18 @@ function isValidRuntimeLog(data) {
       data.generatorName is string && data.generatorName.size() > 0 &&
       data.date is timestamp &&
       data.hours is number && data.hours > 0 &&
+      data.createdAt is timestamp;
+}
+
+function isValidFuelLog(data) {
+  return data.keys().hasOnly([
+        'generatorId', 'generatorName', 'date', 'liters',
+        'pricePerLiter', 'createdAt'
+      ]) &&
+      data.generatorId is string && data.generatorId.size() > 0 &&
+      data.generatorName is string && data.generatorName.size() > 0 &&
+      data.date is timestamp &&
+      data.liters is number && data.liters > 0 &&
+      data.pricePerLiter is number && data.pricePerLiter > 0 &&
       data.createdAt is timestamp;
 }
