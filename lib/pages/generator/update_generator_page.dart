@@ -5,8 +5,8 @@ import '../../components/input_field.dart';
 import '../../components/select_dropdown.dart';
 import '../../components/default_button.dart';
 import '../../components/dialogs/app_confirm_dialog.dart';
-import '../../components/dialogs/app_success_dialog.dart';
 import 'remaining_fuel.dart';
+import 'report_page.dart';
 
 const _locations = ["Warehouse A", "Site B", "Factory Zone"];
 
@@ -312,8 +312,24 @@ class _GeneratorUpdatePageState extends State<GeneratorUpdatePage> {
                         text: "Generate Report",
                         variant: ButtonVariant.secondary,
                         onPressed: () {
-                          showSuccessDialog(
-                              context, "Report generated");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ReportPage(
+                                generatorId: widget.generator['id'] as String,
+                                generatorName:
+                                    widget.generator['name'] as String,
+                                capacity: (widget.generator['fuelCapacity']
+                                            as num?)
+                                        ?.toDouble() ??
+                                    0,
+                                usageRate: (widget.generator['fuelUsage']
+                                            as num?)
+                                        ?.toDouble() ??
+                                    0,
+                              ),
+                            ),
+                          );
                         },
                       ),
 
