@@ -34,6 +34,7 @@ class AppDropdown extends StatelessWidget {
         const SizedBox(height: 6),
 
         DropdownButtonFormField<String>(
+          key: ValueKey(value),
           initialValue: value,
           onChanged: onChanged,
           dropdownColor: AppColors.secondaryFg,
