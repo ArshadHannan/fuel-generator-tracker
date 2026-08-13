@@ -44,3 +44,21 @@ To deploy rule changes:
 ```
 firebase deploy --only firestore:rules --project fuel-tracker-1d754
 ```
+
+## Testing
+
+Unit and widget tests (no device needed):
+
+```
+flutter test test/
+```
+
+Integration test (needs a connected device or running emulator):
+
+```
+flutter test integration_test/app_test.dart -d <device_id>
+```
+
+- `test/remaining_fuel_calculation_test.dart` — unit tests for the remaining-fuel formula
+- `test/widget_test.dart` — widget tests for `DefaultButton` and `AppInputField`
+- `integration_test/app_test.dart` — boots the full app (with Firebase) and exercises Dashboard tab switching
