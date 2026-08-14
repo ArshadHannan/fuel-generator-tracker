@@ -15,16 +15,19 @@ class GeneratorPage extends StatefulWidget {
 
 class _GeneratorPageState extends State<GeneratorPage> {
   late final ScrollController _scrollController;
+  final _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+    _searchController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -51,8 +54,9 @@ class _GeneratorPageState extends State<GeneratorPage> {
 
               const SizedBox(height: 25),
 
-              const AppSearchInput(
+              AppSearchInput(
                 hint: "Search generators",
+                controller: _searchController,
               ),
 
               const SizedBox(height: 25),
@@ -90,16 +94,33 @@ class _GeneratorPageState extends State<GeneratorPage> {
                       );
                     }
 
-                    final generators = docs.map((doc) {
-                      final data = doc.data() as Map<String, dynamic>;
-                      return {
-                        'id': doc.id,
-                        'name': data['name'] ?? '',
-                        'location': data['location'] ?? '',
-                        'fuelCapacity': data['fuelCapacity'],
-                        'fuelUsage': data['fuelUsage'],
-                      };
-                    }).toList();
+                    final query = _searchController.text.trim().toLowerCase();
+
+                    final generators = docs
+                        .map((doc) {
+                          final data = doc.data() as Map<String, dynamic>;
+                          return {
+                            'id': doc.id,
+                            'name': data['name'] ?? '',
+                            'location': data['location'] ?? '',
+                            'fuelCapacity': data['fuelCapacity'],
+                            'fuelUsage': data['fuelUsage'],
+                          };
+                        })
+                        .where((gen) => query.isEmpty ||
+                            (gen['name'] as String)
+                                .toLowerCase()
+                                .contains(query))
+                        .toList();
+
+                    if (generators.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No generators match "$query"',
+                          style: TextStyle(color: AppColors.textMuted),
+                        ),
+                      );
+                    }
 
                     return Scrollbar(
                       controller: _scrollController,
