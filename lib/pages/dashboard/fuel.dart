@@ -65,6 +65,9 @@ class _FuelPageState extends State<FuelPage> {
       submitted && selectedDate == null ? "Date is required" : null;
 
   String? _litersError(double? remaining, double capacity) {
+    debugPrint(
+      '[fuel-debug] _litersError submitted=$submitted remaining=$remaining capacity=$capacity liters=${litersController.text}',
+    );
     if (!submitted) return null;
     final liters = double.tryParse(litersController.text.trim());
     if (liters == null || liters <= 0) return "Enter a valid number of liters";
@@ -96,6 +99,9 @@ class _FuelPageState extends State<FuelPage> {
   ) {
     if (saving) return;
     setState(() => submitted = true);
+    debugPrint(
+      '[fuel-debug] _onSavePressed generatorId=$generatorId remaining=$remaining capacity=$capacity validate=${_validate(remaining, capacity)}',
+    );
     if (!_validate(remaining, capacity)) return;
     showAppConfirmDialog(
       context: context,
